@@ -1,12 +1,16 @@
 require 'rubygems'
-require 'sinatra/base'
+require 'sinatra'
+require 'rack/redis_throttle'
+
 
 module Rack
   module Test
     class FakeApp < Sinatra::Base
 
+      use Rack::RedisThrottle::Limiter
+
       get '/' do
-        "Hello, GET: #{params.inspect}"
+        'Hello Redis Throttler!'
       end
 
     end

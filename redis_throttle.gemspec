@@ -43,8 +43,8 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'hashie'
   gem.add_development_dependency 'rack-test'
   gem.add_development_dependency 'rb-fsevent' if RUBY_PLATFORM =~ /darwin/i
+  gem.add_development_dependency 'guard'
   gem.add_development_dependency 'guard-rspec'
-  gem.add_development_dependency 'guard-livereload'
   gem.add_development_dependency 'fuubar'
   gem.add_development_dependency 'growl'
 end
