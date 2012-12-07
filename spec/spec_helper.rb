@@ -3,6 +3,7 @@ require 'bundler/setup'
 require 'rack'
 require 'rack/test'
 require 'rspec'
+require 'timecop'
 
 require File.dirname(__FILE__) + '/fixtures/fake_app'
 

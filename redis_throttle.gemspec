@@ -41,6 +41,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rspec'
   gem.add_development_dependency 'sinatra'
   gem.add_development_dependency 'foreman'
+  gem.add_development_dependency 'timecop'
   gem.add_development_dependency 'hashie'
   gem.add_development_dependency 'rack-test'
   gem.add_development_dependency 'rb-fsevent' if RUBY_PLATFORM =~ /darwin/i

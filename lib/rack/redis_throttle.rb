@@ -4,6 +4,8 @@ require 'redis'
 require 'hiredis'
 require 'redis-namespace'
 require 'active_support/core_ext/hash/reverse_merge'
+require 'active_support/core_ext/time/calculations'
+require 'active_support/core_ext/date/calculations'
 
 module Rack
   module RedisThrottle

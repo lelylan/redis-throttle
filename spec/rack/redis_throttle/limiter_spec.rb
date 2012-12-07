@@ -40,6 +40,7 @@ describe Rack::RedisThrottle::Limiter do
 
         before { cache.set key, 5000 }
         before { get '/', {}, 'AUTHORIZATION' => 'Bearer token' }
+        after  { cache.set key, 1 }
 
         it 'returns a 403 status' do
           last_response.status.should == 403
@@ -49,7 +50,21 @@ describe Rack::RedisThrottle::Limiter do
           last_response.body.should == '403 Forbidden (Rate Limit Exceeded)'
         end
 
-        after  { cache.set key, 1 }
+        describe 'when comes the new day' do
+
+          # If we are the 12-12-07 (any time) it gives the 12-12-08 00:00:00 UTC
+          let!(:tomorrow) { Time.now.utc.tomorrow.beginning_of_day }
+          before { Timecop.travel(tomorrow) }
+          before { get '/', {}, 'AUTHORIZATION' => 'Bearer token' }
+
+          it 'returns a 200 status' do
+          last_response.status.should == 200
+
+          end
+
+          it 'returns a new rate limit' do
+          end
+        end
       end
     end
 
