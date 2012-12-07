@@ -6,7 +6,7 @@ module Rack
   module Test
     class FakeApp < Sinatra::Base
 
-      use Rack::RedisThrottle::Daily
+      use Rack::RedisThrottle::Daily, max: 5000
 
       get '/' do
         'Hello Redis Throttler!'

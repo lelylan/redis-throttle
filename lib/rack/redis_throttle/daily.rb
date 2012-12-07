@@ -10,7 +10,7 @@ module Rack
 
       # through the request let you define a dynamic rate limit
       def per_day(request)
-        86_400
+        86400
       end
 
       alias_method :max_per_window, :max_per_day

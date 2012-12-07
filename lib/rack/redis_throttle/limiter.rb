@@ -13,7 +13,7 @@ module Rack
         request = Rack::Request.new(env)
         if allowed?(request)
           status, headers, body = app.call(env)
-          headers = rate_limit_headers(headers) if need_protection?(request)
+          headers = rate_limit_headers(request, headers) if need_protection?(request)
           [status, headers, body]
         else
           rate_limit_exceeded
@@ -22,7 +22,17 @@ module Rack
 
       # used to define the cache key
       def client_identifier(request)
-        request.ip.to_s
+        request.ip.to_s + '-'
+      end
+
+      def rate_limit_exceeded
+        headers = respond_to?(:retry_after) ? {'Retry-After' => retry_after.to_f.ceil.to_s} : {}
+        http_error(options[:code] || 403, options[:message] || 'Rate Limit Exceeded', headers)
+      end
+
+      def http_error(code, message = nil, headers = {})
+        [code, {'Content-Type' => 'text/plain; charset=utf-8'}.merge(headers),
+          [ http_status(code) + (message.nil? ? "\n" : " (#{message})\n")]]
       end
     end
 
