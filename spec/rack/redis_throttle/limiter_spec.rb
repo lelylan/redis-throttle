@@ -4,10 +4,11 @@ require 'spec_helper'
 
 describe Rack::RedisThrottle::Limiter do
 
-  let(:cache)    { Rack::RedisThrottle::Connection.create }
-  let(:time_key) { Time.now.utc.strftime('%Y-%m-%d') }
-  let(:key)      { "127.0.0.1:#{time_key}" }
-  before         { cache.set key, 1 }
+  let(:cache)      { Rack::RedisThrottle::Connection.create }
+  let(:time_key)   { Time.now.utc.strftime('%Y-%m-%d') }
+  let(:client_key) { '127.0.0.1' }
+  let(:cache_key)  { "#{client_key}:#{time_key}" }
+  before           { cache.set cache_key, 1 }
 
   describe 'when makes a request' do
 
@@ -38,9 +39,8 @@ describe Rack::RedisThrottle::Limiter do
 
       describe 'when reaches the rate limit' do
 
-        before { cache.set key, 5000 }
+        before { cache.set cache_key, 5000 }
         before { get '/', {}, 'AUTHORIZATION' => 'Bearer token' }
-        after  { cache.set key, 1 }
 
         it 'returns a 403 status' do
           last_response.status.should == 403
