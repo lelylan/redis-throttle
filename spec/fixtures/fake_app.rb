@@ -11,7 +11,6 @@ module Rack
       get '/' do
         'Hello Redis Throttler!'
       end
-
     end
   end
 end

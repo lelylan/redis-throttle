@@ -18,7 +18,7 @@ module Rack
       protected
 
       def cache_key(request)
-        [super, Time.now.strftime('%Y-%m-%d')].join(':')
+        [super, Time.now.utc.strftime('%Y-%m-%d')].join(':')
       end
     end
   end

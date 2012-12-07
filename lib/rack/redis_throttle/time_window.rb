@@ -26,13 +26,8 @@ module Rack
       def cache_incr(request)
         key   = cache_key(request)
         count = cache.incr(key)
-        cache.expire(key, expiring_time) if count == 1
+        cache.expire(key, 1.day) if count == 1
         count
-      end
-
-      # The key always expires at midnight UTC time
-      def expiring_time
-        Time.now.utc.tomorrow.midnight - Time.now.utc
       end
     end
   end

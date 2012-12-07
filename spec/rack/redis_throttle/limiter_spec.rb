@@ -4,9 +4,10 @@ require 'spec_helper'
 
 describe Rack::RedisThrottle::Limiter do
 
-  let(:cache) { Rack::RedisThrottle::Connection.create }
-  let(:key)   { '127.0.0.1:2012-12-07' }
-  before      { cache.set key, 1 }
+  let(:cache)    { Rack::RedisThrottle::Connection.create }
+  let(:time_key) { Time.now.utc.strftime('%Y-%m-%d') }
+  let(:key)      { "127.0.0.1:#{time_key}" }
+  before         { cache.set key, 1 }
 
   describe 'when makes a request' do
 
@@ -40,14 +41,33 @@ describe Rack::RedisThrottle::Limiter do
         before { cache.set key, 5000 }
         before { get '/', {}, 'AUTHORIZATION' => 'Bearer token' }
 
-        it 'returna a 403 status' do
+        it 'returns a 403 status' do
           last_response.status.should == 403
+        end
+
+        it 'returns a rate limited exceeded body' do
+          last_response.body.should == '403 Forbidden (Rate Limit Exceeded)'
         end
 
         after  { cache.set key, 1 }
       end
     end
 
-    describe 'when the Authorization header is not present'
+    describe 'with no Authorization header' do
+
+      before { get '/' }
+
+      it 'returns a 200 status' do
+        last_response.status.should == 200
+      end
+
+      it 'does not return the requests limit headers' do
+        last_response.headers['X-RateLimit-Limit'].should be_nil
+      end
+
+      it 'does not return remaining requests header' do
+        last_response.headers['X-RateLimit-Remaining'].should be_nil
+      end
+    end
   end
 end
