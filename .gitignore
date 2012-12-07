@@ -3,8 +3,10 @@ pkg/*
 .bundle
 .yardoc
 *.swp
+*.swo
 *.DS_Store
 coverage/*
 doc/*
 .rvmrc
 .yardoc
+tmp/*

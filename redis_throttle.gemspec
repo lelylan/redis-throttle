@@ -30,6 +30,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'redis'
   gem.add_dependency 'hiredis'
   gem.add_dependency 'redis-namespace'
+  gem.add_dependency 'activesupport'
 
   gem.test_files = [
     'spec/fixtures/fake_app.rb',
