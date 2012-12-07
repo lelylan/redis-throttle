@@ -1,0 +1,10 @@
+pkg/*
+*.gem
+.bundle
+.yardoc
+*.swp
+*.DS_Store
+coverage/*
+doc/*
+.rvmrc
+.yardoc
