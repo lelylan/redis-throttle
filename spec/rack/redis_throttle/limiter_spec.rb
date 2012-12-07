@@ -5,6 +5,8 @@ require 'spec_helper'
 describe Rack::RedisThrottle::Limiter do
 
   let(:cache) { Rack::RedisThrottle::Connection.create }
+  let(:key)   { '127.0.0.1:2012-12-07' }
+  before      { cache.set key, 1 }
 
   describe 'when makes a request' do
 
@@ -34,8 +36,6 @@ describe Rack::RedisThrottle::Limiter do
       end
 
       describe 'when reaches the rate limit' do
-
-        let(:key) { '127.0.0.1-:2012-12-07' }
 
         before { cache.set key, 5000 }
         before { get '/', {}, 'AUTHORIZATION' => 'Bearer token' }

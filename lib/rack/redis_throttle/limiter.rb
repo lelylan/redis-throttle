@@ -22,7 +22,7 @@ module Rack
 
       # used to define the cache key
       def client_identifier(request)
-        request.ip.to_s + '-'
+        request.ip.to_s
       end
 
       def rate_limit_exceeded
