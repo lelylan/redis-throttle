@@ -87,21 +87,5 @@ module Rack
           [ http_status(code) + (message.nil? ? "\n" : " (#{message})")]]
       end
     end
-
-    class Connection
-
-      def self.create(options={})
-        url = redis_provider || 'redis://localhost:6379/0'
-        options.reverse_merge!({ url: url })
-        client = Redis.connect(url: options[:url], driver: :hiredis)
-        Redis::Namespace.new("lelylan:#{ENV['RACK_ENV']}:rate", redis: client)
-      end
-
-      private
-
-      def self.redis_provider
-        ENV['RATE_REDIS_URL']
-      end
-    end
   end
 end
