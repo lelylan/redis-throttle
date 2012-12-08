@@ -8,8 +8,9 @@ end
 
 describe Rack::RedisThrottle::Daily do
 
-  before { app.options[:cache] = Rack::RedisThrottle::Connection.create(url: 'redis://localhost:9999/0') }
-  let(:cache)      { app.options[:cache] }
+  let(:cache) { Rack::RedisThrottle::Connection.create(url: 'redis://localhost:9999/0') }
+  before      { app.options[:cache] = cache }
+
   let(:time_key)   { Time.now.utc.strftime('%Y-%m-%d') }
   let(:client_key) { '127.0.0.1' }
   let(:cache_key)  { "#{client_key}:#{time_key}" }
