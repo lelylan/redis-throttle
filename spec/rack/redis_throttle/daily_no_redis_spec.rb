@@ -17,7 +17,7 @@ describe Rack::RedisThrottle::Daily do
 
         describe 'when the rate limit is not reached' do
 
-          before { get '/foo', {}, 'AUTHORIZATION' => 'Bearer <token>' }
+          before { get '/foo' }
 
           it 'returns a 200 status' do
             last_response.status.should == 200
@@ -32,23 +32,6 @@ describe Rack::RedisThrottle::Daily do
             get '/', {}, 'AUTHORIZATION' => 'Bearer <token>'
             previous.should == last_response.headers['X-RateLimit-Remaining'].to_i
           end
-        end
-      end
-
-      describe 'with no Authorization header' do
-
-        before { get '/foo' }
-
-        it 'returns a 200 status' do
-          last_response.status.should == 200
-        end
-
-        it 'does not return the requests limit headers' do
-          last_response.headers['X-RateLimit-Limit'].should be_nil
-        end
-
-        it 'does not return remaining requests header' do
-          last_response.headers['X-RateLimit-Remaining'].should be_nil
         end
       end
     end

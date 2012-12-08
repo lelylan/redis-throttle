@@ -2,8 +2,8 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |gem|
-  gem.version            = File.read('VERSION').chomp
-  gem.date               = File.mtime('VERSION').strftime('%Y-%m-%d')
+  gem.version     = File.read('VERSION').chomp
+  gem.date        = File.mtime('VERSION').strftime('%Y-%m-%d')
   gem.name        = 'redis-throttle'
   gem.homepage    = 'https://github.com/andreareginato'
   gem.summary     = 'HTTP request rate limiter for Rack applications with Redigem.'

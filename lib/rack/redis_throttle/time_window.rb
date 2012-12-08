@@ -7,13 +7,12 @@ module Rack
         case
         when whitelisted?(request) then true
         when blacklisted?(request) then false
-        else cache_incr(request) <= max_per_window(request)
+        else need_protection?(request) ? cache_incr(request) <= max_per_window(request) : true
         end
       end
 
-      # No rate limit for public requests
       def need_protection?(request)
-        request.env.has_key?('AUTHORIZATION')
+        true
       end
 
       def rate_limit_headers(request, headers)

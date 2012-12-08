@@ -16,7 +16,7 @@ module Rack
           headers = rate_limit_headers(request, headers) if need_protection?(request)
           [status, headers, body]
         else
-          rate_limit_exceeded
+          rate_limit_exceeded(request)
         end
       end
 
@@ -77,12 +77,12 @@ module Rack
         request.ip.to_s
       end
 
-      def rate_limit_exceeded
+      def rate_limit_exceeded(request)
         headers = respond_to?(:retry_after) ? {'Retry-After' => retry_after.to_f.ceil.to_s} : {}
-        http_error(options[:code] || 403, options[:message] || 'Rate Limit Exceeded', headers)
+        http_error(request, options[:code] || 403, options[:message] || 'Rate Limit Exceeded', headers)
       end
 
-      def http_error(code, message = nil, headers = {})
+      def http_error(request, code, message = nil, headers = {})
         [code, {'Content-Type' => 'text/plain; charset=utf-8'}.merge(headers),
           [ http_status(code) + (message.nil? ? "\n" : " (#{message})")]]
       end
