@@ -17,5 +17,5 @@ end
 
 def app
   @target_app ||= Rack::Lint.new(Rack::Test::FakeApp.new)
-  @daily_app  ||= Rack::RedisThrottle::Daily.new(@target_app, max: 5000, cache: MockRedis.new)
+  @daily_app  ||= Rack::RedisThrottle::Daily.new(@target_app)
 end

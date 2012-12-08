@@ -2,6 +2,11 @@ require 'spec_helper'
 
 describe Rack::RedisThrottle::Daily do
 
+  # middleware settings
+  before { app.options[:max]   = 5000 }
+  before { app.options[:cache] = MockRedis.new }
+
+
   let(:cache)      { app.options[:cache] }
 
   let(:time_key)   { Time.now.utc.strftime('%Y-%m-%d') }
