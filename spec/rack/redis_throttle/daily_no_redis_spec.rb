@@ -3,13 +3,13 @@ require 'spec_helper'
 def app
   @target_app = example_target_app
   @cache = Rack::RedisThrottle::Connection.create(url: 'redis://localhost:9999/0')
-  @app ||= Rack::RedisThrottle::Daily.new(@target_app, max: 5000, cache: @cache)
+  @daily_no_redis_app ||= Rack::RedisThrottle::Daily.new(@target_app, max: 5000, cache: @cache)
 end
 
 describe Rack::RedisThrottle::Daily do
 
+  before { app.options[:cache] = Rack::RedisThrottle::Connection.create(url: 'redis://localhost:9999/0') }
   let(:cache)      { app.options[:cache] }
-  before { pp "MOCKED CACHE", cache}
   let(:time_key)   { Time.now.utc.strftime('%Y-%m-%d') }
   let(:client_key) { '127.0.0.1' }
   let(:cache_key)  { "#{client_key}:#{time_key}" }
