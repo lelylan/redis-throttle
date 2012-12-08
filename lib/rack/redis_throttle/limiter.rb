@@ -20,6 +20,51 @@ module Rack
         end
       end
 
+      def cache
+        begin
+          case cache = (options[:cache] ||= {})
+          when Proc then cache.call
+          else cache
+          end
+        rescue => e
+          {}
+        end
+      end
+
+      def cache_has?(key)
+        cache.get(key) rescue false
+      end
+
+      def cache_get(key, default = nil)
+        (cache.get(key) || default) rescue 1
+      end
+
+      def cache_set(key, value)
+        cache.set(key, value) rescue 1
+      end
+
+      def cache_incr(request)
+        begin
+          key   = cache_key(request)
+          count = cache.incr(key)
+          cache.expire(key, 1.day) if count == 1
+          pp count
+        rescue Redis::BaseConnectionError => e
+          pp 1
+        end
+      end
+
+      def cache_key(request)
+        id = client_identifier(request)
+        case
+        when options.has_key?(:key)
+          options[:key].call(request)
+        when options.has_key?(:key_prefix)
+          [options[:key_prefix], id].join(':')
+        else id
+        end
+      end
+
       # used to define the cache key
       def client_identifier(request)
         request.ip.to_s

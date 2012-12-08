@@ -21,14 +21,6 @@ module Rack
         headers['X-RateLimit-Remaining'] = ([0, max_per_window(request) - (cache_get(cache_key(request)).to_i rescue 1)].max).to_s
         headers
       end
-
-      # Increase the redis key associated to the user
-      def cache_incr(request)
-        key   = cache_key(request)
-        count = cache.incr(key)
-        cache.expire(key, 1.day) if count == 1
-        count
-      end
     end
   end
 end
