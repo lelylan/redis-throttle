@@ -1,11 +1,11 @@
+#!/usr/bin/env ruby -rubygems
 # -*- encoding: utf-8 -*-
-$:.push File.expand_path('../lib', __FILE__)
-require 'rack/redis_throttle/version'
 
 Gem::Specification.new do |gem|
-  gem.version     = '0.0.1'
+  gem.version            = File.read('VERSION').chomp
+  gem.date               = File.mtime('VERSION').strftime('%Y-%m-%d')
   gem.name        = 'redis-throttle'
-  gem.homepage    = 'https://github.com/lelylan'
+  gem.homepage    = 'https://github.com/andreareginato'
   gem.summary     = 'HTTP request rate limiter for Rack applications with Redigem.'
   gem.description = 'Rack middleware for rate-limiting incoming HTTP requests with Redigem.'
 
@@ -13,7 +13,7 @@ Gem::Specification.new do |gem|
   gem.email   = ['andrea.reginato@gmail.com']
 
   gem.platform           = Gem::Platform::RUBY
-  gem.files              = %w(AUTHORS README UNLICENSE VERSION) + Dir.glob('lib/**/*.rb')
+  gem.files              = %w(CONTRIBUTORS.md README.md LICENSE.md VERSION) + Dir.glob('lib/**/*.rb')
   gem.bindir             = %q(bin)
   gem.executables        = %w()
   gem.default_executable = gem.executables.first
@@ -31,12 +31,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'hiredis'
   gem.add_dependency 'redis-namespace'
   gem.add_dependency 'activesupport'
-
-  gem.test_files = [
-    'spec/fixtures/fake_app.rb',
-    'spec/spec_helper.rb',
-    'spec/support/matchers/body.rb',
-  ]
 
   gem.add_development_dependency 'rspec'
   gem.add_development_dependency 'sinatra'
