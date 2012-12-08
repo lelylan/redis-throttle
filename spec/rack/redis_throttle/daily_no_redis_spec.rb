@@ -1,10 +1,5 @@
 require 'spec_helper'
 
-def app
-  @target_app = example_target_app
-  @cache = Rack::RedisThrottle::Connection.create(url: 'redis://localhost:9999/0')
-  @daily_no_redis_app ||= Rack::RedisThrottle::Daily.new(@target_app, max: 5000, cache: @cache)
-end
 
 describe Rack::RedisThrottle::Daily do
 

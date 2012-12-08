@@ -15,6 +15,7 @@ RSpec.configure do |config|
   config.include Rack::Test::Methods
 end
 
-def example_target_app
-  Rack::Lint.new(Rack::Test::FakeApp.new)
+def app
+  @target_app ||= Rack::Lint.new(Rack::Test::FakeApp.new)
+  @daily_app  ||= Rack::RedisThrottle::Daily.new(@target_app, max: 5000, cache: MockRedis.new)
 end

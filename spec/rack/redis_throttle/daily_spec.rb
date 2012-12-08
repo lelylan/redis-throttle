@@ -1,10 +1,5 @@
 require 'spec_helper'
 
-def app
-  @target_app ||= example_target_app
-  @daily_app ||= Rack::RedisThrottle::Daily.new(@target_app, max: 5000, cache: MockRedis.new)
-end
-
 describe Rack::RedisThrottle::Daily do
 
   let(:cache)      { app.options[:cache] }
