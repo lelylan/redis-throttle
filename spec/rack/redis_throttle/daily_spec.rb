@@ -1,9 +1,14 @@
 #require 'spec_helper'
-#load 'test/fake_connection.rb'
+
+#def app
+  #@target_app ||= example_target_app
+  #@app ||= Rack::RedisThrottle::Daily.new(@target_app, max: 5000, cache: MockRedis.new)
+#end
 
 #describe Rack::RedisThrottle::Daily do
 
-  #let(:cache)      { Rack::RedisThrottle::Connection.create }
+  #let(:cache)      { app.options[:cache] }
+  #before { pp "MOCKED CACHE", cache}
 
   #let(:time_key)   { Time.now.utc.strftime('%Y-%m-%d') }
   #let(:client_key) { '127.0.0.1' }
@@ -21,7 +26,7 @@
 
       #describe 'when the rate limit is not reached' do
 
-        #before { get '/', {}, 'AUTHORIZATION' => 'Bearer <token>' }
+        #before { get '/foo', {}, 'AUTHORIZATION' => 'Bearer <token>' }
 
         #it 'returns a 200 status' do
           #last_response.status.should == 200
@@ -45,7 +50,7 @@
       #describe 'when reaches the rate limit' do
 
         #before { cache.set cache_key, 5000 }
-        #before { get '/', {}, 'AUTHORIZATION' => 'Bearer <token>' }
+        #before { get '/foo', {}, 'AUTHORIZATION' => 'Bearer <token>' }
 
         #it 'returns a 403 status' do
           #last_response.status.should == 403
@@ -62,7 +67,7 @@
           #before { Time.now.utc }
           #before { Timecop.travel(tomorrow) }
           #before { Time.now.utc }
-          #before { get '/', {}, 'AUTHORIZATION' => 'Bearer <token>' }
+          #before { get '/foo', {}, 'AUTHORIZATION' => 'Bearer <token>' }
           #after  { Timecop.return }
 
           #it 'returns a 200 status' do
@@ -77,7 +82,7 @@
 
     #describe 'with no Authorization header' do
 
-      #before { get '/' }
+      #before { get '/foo' }
 
       #it 'returns a 200 status' do
         #last_response.status.should == 200

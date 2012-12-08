@@ -2,6 +2,7 @@ require 'rubygems'
 require 'bundler/setup'
 require 'rack'
 require 'rack/test'
+require 'mock_redis'
 require 'rspec'
 require 'timecop'
 
@@ -12,8 +13,8 @@ Dir[File.dirname(__FILE__) + '/support/**/*.rb'].each {|f| require f}
 RSpec.configure do |config|
   config.mock_with :rspec
   config.include Rack::Test::Methods
+end
 
-  def app
-    Rack::Lint.new(Rack::Test::FakeApp.new)
-  end
+def example_target_app
+  Rack::Lint.new(Rack::Test::FakeApp.new)
 end

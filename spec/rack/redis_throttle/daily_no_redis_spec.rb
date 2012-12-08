@@ -1,10 +1,15 @@
 require 'spec_helper'
-require 'test/no_connection'
+
+def app
+  @target_app = example_target_app
+  @cache = Rack::RedisThrottle::Connection.create(url: 'redis://localhost:9999/0')
+  @app ||= Rack::RedisThrottle::Daily.new(@target_app, max: 5000, cache: @cache)
+end
 
 describe Rack::RedisThrottle::Daily do
 
-  let(:cache)      { Rack::RedisThrottle::Connection.create }
-
+  let(:cache)      { app.options[:cache] }
+  before { pp "MOCKED CACHE", cache}
   let(:time_key)   { Time.now.utc.strftime('%Y-%m-%d') }
   let(:client_key) { '127.0.0.1' }
   let(:cache_key)  { "#{client_key}:#{time_key}" }
@@ -15,7 +20,7 @@ describe Rack::RedisThrottle::Daily do
 
       describe 'when the rate limit is not reached' do
 
-        before { get '/', {}, 'AUTHORIZATION' => 'Bearer <token>' }
+        before { get '/foo', {}, 'AUTHORIZATION' => 'Bearer <token>' }
 
         it 'returns a 200 status' do
           last_response.status.should == 200
@@ -35,7 +40,7 @@ describe Rack::RedisThrottle::Daily do
 
     describe 'with no Authorization header' do
 
-      before { get '/' }
+      before { get '/foo' }
 
       it 'returns a 200 status' do
         last_response.status.should == 200
