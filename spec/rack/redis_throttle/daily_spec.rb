@@ -1,5 +1,5 @@
 #require 'spec_helper'
-#require 'test/connection'
+#load 'test/fake_connection.rb'
 
 #describe Rack::RedisThrottle::Daily do
 
