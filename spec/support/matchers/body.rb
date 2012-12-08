@@ -7,3 +7,8 @@ RSpec::Matchers.define :have_body do |expected|
     "have body #{expected.inspect}"
   end
 end
+
+
+def mock_cache
+  MockRedis.new
+end

@@ -46,6 +46,7 @@ GEM
     listen (0.6.0)
     lumberjack (1.0.2)
     method_source (0.8.1)
+    mock_redis (0.6.1)
     multi_json (1.4.0)
     pry (0.9.10)
       coderay (~> 1.0.5)
@@ -92,6 +93,7 @@ DEPENDENCIES
   guard
   guard-rspec
   hashie
+  mock_redis
   rack-test
   rb-fsevent
   redis-throttle!
