@@ -212,7 +212,7 @@ us for any idea that can improve the project.
 ## Links
 
 * [GIT Repository](https://github.com/andreareginato/redis-throttle)
-* Initial inspiration form [this article](http://martinciu.com/2011/08/how-to-add-api-throttle-to-your-rails-app.html)
+* Initial inspiration form [Martinciu's dev blog](http://martinciu.com/2011/08/how-to-add-api-throttle-to-your-rails-app.html)
 
 
 ## Authors
