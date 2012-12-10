@@ -48,7 +48,7 @@ use Rack::Throttle::Daily, max: 2500
 ```ruby
 #!/usr/bin/env rackup
 require 'rack/throttle'
-use Rack::Throttle::Interval
+use Rack::Throttle::Daily max: 2500
 
 run lambda { |env| [200, {'Content-Type' => 'text/plain'}, "Hello, world!\n"] }
 ```
