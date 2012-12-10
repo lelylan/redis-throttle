@@ -24,13 +24,7 @@ describe Rack::RedisThrottle::Daily do
           end
 
           it 'returns the remaining requests header' do
-            last_response.headers['X-RateLimit-Remaining'].should == '4999'
-          end
-
-          it 'does not decrease the available requests' do
-            previous = last_response.headers['X-RateLimit-Remaining'].to_i
-            get '/', {}, 'AUTHORIZATION' => 'Bearer <token>'
-            previous.should == last_response.headers['X-RateLimit-Remaining'].to_i
+            last_response.headers['X-RateLimit-Remaining'].should == '5000'
           end
         end
       end
