@@ -240,11 +240,11 @@ Special thanks to the following people for submitting patches.
 
 ## Changelog
 
-See [CHANGELOG](devices/blob/master/CHANGELOG.md)
+See [CHANGELOG](redis-throttle/blob/master/CHANGELOG.md)
 
 
 ## Copyright
 
 Redis Throttle is free and unencumbered public domain software.
-See [LICENCE](devices/blob/master/LICENSE.md)
+See [LICENCE](redis-throttle/blob/master/LICENSE.md)
 
