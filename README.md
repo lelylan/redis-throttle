@@ -3,17 +3,15 @@
 This is fork of the [Rack Throttle](http://github.com/datagraph/rack-throttle) middleware
 that provides logic for rate-limiting incoming HTTP requests to Rack applications using
 Redis as storage system. You can use `Rack::RedisThrottle` with any Ruby web framework based
-on Rack, including Ruby on Rails 3.0 and Sinatra.
-
-This gem was designed to experiment rate limit with Rails 3.x and
-[Doorkeeper](https://github.com/applicake/doorkeeper/).
+on Rack, including Ruby on Rails 3.0 and Sinatra. This gem was designed to experiment rate 
+limit with Rails 3.x and [Doorkeeper](https://github.com/applicake/doorkeeper/).
 
 ## Features
 
-* Based to work only with Redis
-* Automatically deploy by setting `ENV['REDIS_RATE_LIMIT_URL']`
-* When the Redis connection is not available redis throttle skips the rate limit check
-* Automatically adds `X-RateLimit-Limit` and `X-RateLimit-Remaining` headers
+* Works only with Redis.
+* Automatically deploy by setting `ENV['REDIS_RATE_LIMIT_URL']`.
+* When the Redis connection is not available redis throttle skips the rate limit check (it does not blow up).
+* Automatically adds `X-RateLimit-Limit` and `X-RateLimit-Remaining` headers.
 
 
 ## Requirements
@@ -25,7 +23,7 @@ Devices API is tested against MRI 1.9.3.
 
 Update your gem file and run `bundle`
 
-    gem 'redis-throttle'
+    gem 'redis-throttle', git: 'git@github.com:andreareginato/redis-throttle.git'
 
 
 ## Rails Examples
@@ -99,23 +97,33 @@ by simply subclassing one of the default implementations. Follows an example whe
     end
 
 
-## Notes
+## Rate limit headers
 
-### Testing coverage
+`Rack::RedisThrottle` automatically sets two rate limits headers to let the 
+client know the max number of requests and the one availables.
 
-Only `Rack::RedisThrottle::Daily` has a test suite. We will cover all
-the gem whenever I'll find more time and I'll see it being used widely.
+    HTTP/1.1 200 OK
+    X-RateLimit-Limit: 5000
+    X-RateLimit-Remaining: 4999
 
-### HTTP client identification
+When you exceed the API calls limit your request is forbidden.
 
-The rate-limiting counters stored and maintained by `Rack::Throttle` are
+    HTTP/1.1 403 Forbidden
+    X-RateLimit-Limit: 5000
+    X-RateLimit-Remaining: 0
+
+
+## HTTP client identification
+
+The rate-limiting counters stored and maintained by `Rack::RedisThrottle` are
 keyed to unique HTTP clients. By default, HTTP clients are uniquely identified
 by their IP address as returned by `Rack::Request#ip`. If you wish to instead
 use a more granular, application-specific identifier such as a session key or
 a user account name, you need only subclass a throttling strategy implementation
 and override the `#client_identifier` method.
 
-### HTTP Response Codes and Headers
+
+## HTTP Response Codes and Headers
 
 When a client exceeds their rate limit, `Rack::Throttle` by default returns
 a "403 Forbidden" response with an associated "Rate Limit Exceeded" message
@@ -136,6 +144,14 @@ JSON message.
         daily_rate_limit: max_per_window(request)
       }
     end
+
+
+## Notes
+
+### Testing coverage
+
+Only `Rack::RedisThrottle::Daily` has a test suite. We will cover all
+the gem whenever I'll find more time and I'll see it being used widely.
 
 
 ## Contributing
