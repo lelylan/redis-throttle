@@ -31,7 +31,7 @@ gem 'redis-throttle', git: 'git@github.com:andreareginato/redis-throttle.git'
 
 ```ruby
 # Limit the daily numebr of requests to 2500
-use Rack::RedisThrottle::Daily, max: 2500
+config.middleware.use Rack::RedisThrottle::Daily, max: 2500
 ```
 
 ## Sinatra example 
@@ -115,8 +115,9 @@ Now you can use it in your Rails App.
 # config/application.rb
 module App
   class Application < Rails::Application
-    # ...
-    use DailyRateLimit
+  
+    # Puts your rate limit middleware as high as you can in your middleware stack
+    config.middleware.insert_after Rack::Lock, 'DailyRateLimit'
 ```
 
 ## Rate limit headers
@@ -211,6 +212,7 @@ us for any idea that can improve the project.
 ## Links
 
 * [GIT Repository](https://github.com/andreareginato/redis-throttle)
+* Initial inspiration form [this article](http://martinciu.com/2011/08/how-to-add-api-throttle-to-your-rails-app.html)
 
 
 ## Authors
@@ -231,6 +233,6 @@ See [CHANGELOG](devices/blob/master/CHANGELOG.md)
 
 ## Copyright
 
-`Rack::RedisThrottle` is free and unencumbered public domain software. For more
-information, see <http://unlicense.org/> or the accompanying LICENSE file.
+Redis Throttle is free and unencumbered public domain software.
+See [LICENCE](devices/blob/master/LICENSE.md)
 
