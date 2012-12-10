@@ -4,8 +4,9 @@ require 'mock_redis'
 module Rack
   module RedisThrottle
     class Connection
-      def self.create
-        MockRedis.new
+
+      def self.create(options={})
+       MockRedis.new
       end
     end
   end
