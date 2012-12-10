@@ -12,6 +12,7 @@ limit with Rails 3.x and [Doorkeeper](https://github.com/applicake/doorkeeper/).
 * Automatically deploy by setting `ENV['REDIS_RATE_LIMIT_URL']`.
 * When the Redis connection is not available redis throttle skips the rate limit check (it does not blow up).
 * Automatically adds `X-RateLimit-Limit` and `X-RateLimit-Remaining` headers.
+* Set MockRedis while running your tests
 
 
 ## Requirements
@@ -134,6 +135,17 @@ When you exceed the API calls limit your request is forbidden.
     HTTP/1.1 403 Forbidden
     X-RateLimit-Limit: 5000
     X-RateLimit-Remaining: 0
+
+
+# Testing your apps
+
+While testing your Rack app Mock the redis connection by requiring this file
+
+```ruby
+  # Rate limit fake redis connection
+  require 'rack/redis_throttle/testing/connection'
+```
+
 
 
 ## HTTP client identification
