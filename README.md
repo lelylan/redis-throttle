@@ -26,75 +26,89 @@ Update your gem file and run `bundle`
     gem 'redis-throttle', git: 'git@github.com:andreareginato/redis-throttle.git'
 
 
-## Rails Examples
+## Rails Example
 
-### Limit the daily numebr of requests to 2500
+    # Limit the daily numebr of requests to 2500
+    use Rack::RedisThrottle::Daily, max: 2500
 
-   use Rack::RedisThrottle::Daily, max: 2500
+## Sinatra example 
+    
+    #!/usr/bin/env ruby -rubygems
+    require 'sinatra'
+    require 'rack/throttle'
+    use Rack::Throttle::Daily, max: 2500
+    
+    
+## Rack app example 
+    
+    #!/usr/bin/env rackup
+    require 'rack/throttle'
+    use Rack::Throttle::Interval
 
-### Limit the hourly numebr of requests to 500
-
-   use Rack::RedisThrottle::Hourly, max: 500
-
-### Enforcing a minimum 1-second interval between requests
-
-   use Rack::RedisThrottle::Interval, min: 1
-
-### Combining various throttling constraints into one overall policy
-
-   use Rack::RedisThrottle::Daily, max: 2500
-   use Rack::RedisThrottle::Hourly, max: 500
-   use Rack::RedisThrottle::Interval, min: 1
+    run lambda { |env| [200, {'Content-Type' => 'text/plain'}, "Hello, world!\n"] }
 
 
 ## Customizations
 
 You can fully customize the implementation details of any of these strategies
-by simply subclassing one of the default implementations. Follows an example where:
+by simply subclassing one of the default implementations. 
 
-* we suppose you are using Doorkeper as authorization system (OAuth2)
-* the number of daily requests are based on the user id and not the IP
+In our example we want to reach those goals.
+
+* We want to use Doorkeper as authorization system (OAuth2)
+* The number of daily requests are based on the user id and not the IP
   address (default in `Rack::RedisThrottle`)
-* the number of daily requests is dynamically set per user by the
+* The number of daily requests is dynamically set per user by the
   `user#rate_limit` field.
 
+Now subclass `Rack::RedisThrottle::Daily`, create your own rules and use it in your Rails app
+
+    # /lib/middlewares/daily_rate_limit
     require 'rack/redis_throttle'
 
     class DailyRateLimit < Rack::RedisThrottle::Daily
-
+    
       def call(env)
         @user_rate_limit = nil
         super
       end
-
+    
       # Identify the client through the user id
       def client_identifier(request)
         user_rate_limit(request).id
       end
-
+    
       # Set the max number of requests based on the user#rate_limit field
       def max_per_window(request)
         user_rate_limit(request).rate_limit
       end
-
+    
       # Rate limit only requests sending the access token
       def need_protection?(request)
         request.env.has_key?('HTTP_AUTHORIZATION')
       end
-
+    
       private
-
+    
       # Extract the user object through the access token and cache it
       def user_rate_limit(request)
         @user_rate_limit ||= find_user_rate_limit(request)
       end
-
+    
       def user_rate_limit(request)
         token         = request.env['HTTP_AUTHORIZATION'].split(' ')[-1]
         access_token  = Doorkeeper::AccessToken.where(token: token).first
         access_token ? User.find(access_token.resource_owner_id) : nil
       end
     end
+
+Now you can use it in your Rails App.
+
+    # config/application.rb
+    module App
+      class Application < Rails::Application
+        # ...
+        use DailyRateLimit
 
 
 ## Rate limit headers
@@ -125,7 +139,7 @@ and override the `#client_identifier` method.
 
 ## HTTP Response Codes and Headers
 
-When a client exceeds their rate limit, `Rack::Throttle` by default returns
+When a client exceeds their rate limit, `Rack::RedisThrottle` by default returns
 a "403 Forbidden" response with an associated "Rate Limit Exceeded" message
 in the response body. If you need personalize it, for example with a
 JSON message.
