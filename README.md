@@ -23,30 +23,35 @@ Devices API is tested against MRI 1.9.3.
 
 Update your gem file and run `bundle`
 
-    gem 'redis-throttle', git: 'git@github.com:andreareginato/redis-throttle.git'
-
+```ruby
+gem 'redis-throttle', git: 'git@github.com:andreareginato/redis-throttle.git'
+```
 
 ## Rails Example
 
-    # Limit the daily numebr of requests to 2500
-    use Rack::RedisThrottle::Daily, max: 2500
+```ruby
+# Limit the daily numebr of requests to 2500
+use Rack::RedisThrottle::Daily, max: 2500
+```
 
 ## Sinatra example 
-    
-    #!/usr/bin/env ruby -rubygems
-    require 'sinatra'
-    require 'rack/throttle'
-    use Rack::Throttle::Daily, max: 2500
-    
+   
+```ruby
+#!/usr/bin/env ruby -rubygems
+require 'sinatra'
+require 'rack/throttle'
+use Rack::Throttle::Daily, max: 2500
+```
     
 ## Rack app example 
-    
-    #!/usr/bin/env rackup
-    require 'rack/throttle'
-    use Rack::Throttle::Interval
+ 
+```ruby
+#!/usr/bin/env rackup
+require 'rack/throttle'
+use Rack::Throttle::Interval
 
-    run lambda { |env| [200, {'Content-Type' => 'text/plain'}, "Hello, world!\n"] }
-
+run lambda { |env| [200, {'Content-Type' => 'text/plain'}, "Hello, world!\n"] }
+```
 
 ## Customizations
 
@@ -63,53 +68,56 @@ In our example we want to reach those goals.
 
 Now subclass `Rack::RedisThrottle::Daily`, create your own rules and use it in your Rails app
 
-    # /lib/middlewares/daily_rate_limit
-    require 'rack/redis_throttle'
+```ruby
+# /lib/middlewares/daily_rate_limit
+require 'rack/redis_throttle'
 
-    class DailyRateLimit < Rack::RedisThrottle::Daily
-    
-      def call(env)
-        @user_rate_limit = nil
-        super
-      end
-    
-      # Identify the client through the user id
-      def client_identifier(request)
-        user_rate_limit(request).id
-      end
-    
-      # Set the max number of requests based on the user#rate_limit field
-      def max_per_window(request)
-        user_rate_limit(request).rate_limit
-      end
-    
-      # Rate limit only requests sending the access token
-      def need_protection?(request)
-        request.env.has_key?('HTTP_AUTHORIZATION')
-      end
-    
-      private
-    
-      # Extract the user object through the access token and cache it
-      def user_rate_limit(request)
-        @user_rate_limit ||= find_user_rate_limit(request)
-      end
-    
-      def user_rate_limit(request)
-        token         = request.env['HTTP_AUTHORIZATION'].split(' ')[-1]
-        access_token  = Doorkeeper::AccessToken.where(token: token).first
-        access_token ? User.find(access_token.resource_owner_id) : nil
-      end
-    end
+class DailyRateLimit < Rack::RedisThrottle::Daily
+
+  def call(env)
+    @user_rate_limit = nil
+    super
+  end
+
+  # Identify the client through the user id
+  def client_identifier(request)
+    user_rate_limit(request).id
+  end
+
+  # Set the max number of requests based on the user#rate_limit field
+  def max_per_window(request)
+    user_rate_limit(request).rate_limit
+  end
+
+  # Rate limit only requests sending the access token
+  def need_protection?(request)
+    request.env.has_key?('HTTP_AUTHORIZATION')
+  end
+
+  private
+
+  # Extract the user object through the access token and cache it
+  def user_rate_limit(request)
+    @user_rate_limit ||= find_user_rate_limit(request)
+  end
+
+  def user_rate_limit(request)
+    token         = request.env['HTTP_AUTHORIZATION'].split(' ')[-1]
+    access_token  = Doorkeeper::AccessToken.where(token: token).first
+    access_token ? User.find(access_token.resource_owner_id) : nil
+  end
+end
+```
 
 Now you can use it in your Rails App.
 
-    # config/application.rb
-    module App
-      class Application < Rails::Application
-        # ...
-        use DailyRateLimit
-
+```ruby
+# config/application.rb
+module App
+  class Application < Rails::Application
+    # ...
+    use DailyRateLimit
+```
 
 ## Rate limit headers
 
@@ -144,20 +152,21 @@ a "403 Forbidden" response with an associated "Rate Limit Exceeded" message
 in the response body. If you need personalize it, for example with a
 JSON message.
 
+```ruby
+def http_error(request, code, message = nil, headers = {})
+  [ code, { 'Content-Type' => 'application/json' }.merge(headers), [body(request).to_json] ]
+end
 
-    def http_error(request, code, message = nil, headers = {})
-      [ code, { 'Content-Type' => 'application/json' }.merge(headers), [body(request).to_json] ]
-    end
-
-    def body(request)
-      {
-        status: 403,
-        method: request.env['REQUEST_METHOD'],
-        request: "#{request.env['rack.url_scheme']}://#{request.env['HTTP_HOST']}#{request.env['PATH_INFO']}",
-        description: 'Rate limit exceeded',
-        daily_rate_limit: max_per_window(request)
-      }
-    end
+def body(request)
+  {
+    status: 403,
+    method: request.env['REQUEST_METHOD'],
+    request: "#{request.env['rack.url_scheme']}://#{request.env['HTTP_HOST']}#{request.env['PATH_INFO']}",
+    description: 'Rate limit exceeded',
+    daily_rate_limit: max_per_window(request)
+  }
+end
+```
 
 
 ## Notes
