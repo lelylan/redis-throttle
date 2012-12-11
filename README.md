@@ -1,6 +1,6 @@
 # Redis Throttle Middleware
 
-This is fork of the [Rack Throttle](http://github.com/datagraph/rack-throttle) middleware
+This is a fork of the [Rack Throttle](http://github.com/datagraph/rack-throttle) middleware
 that provides logic for rate-limiting incoming HTTP requests to Rack applications using
 Redis as storage system. You can use `Rack::RedisThrottle` with any Ruby web framework based
 on Rack, including Ruby on Rails 3.0 and Sinatra. This gem was designed to experiment rate 
