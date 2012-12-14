@@ -1,0 +1,260 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Redis-throttle by andreareginato</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Redis-throttle</h1>
+        <p>Rack middleware for rate-limiting incoming HTTP requests configured to be used with Redis.</p>
+        <p class="view"><a href="https://github.com/andreareginato/redis-throttle">View the Project on GitHub <small>andreareginato/redis-throttle</small></a></p>
+        <ul>
+          <li><a href="https://github.com/andreareginato/redis-throttle/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/andreareginato/redis-throttle/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/andreareginato/redis-throttle">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>Redis Throttle Middleware</h1>
+
+<p>This is a fork of the <a href="http://github.com/datagraph/rack-throttle">Rack Throttle</a> middleware
+that provides logic for rate-limiting incoming HTTP requests to Rack applications using
+Redis as storage system. You can use <code>Rack::RedisThrottle</code> with any Ruby web framework based
+on Rack, including Ruby on Rails 3.0 and Sinatra. This gem was designed to experiment rate 
+limit with Rails 3.x and <a href="https://github.com/applicake/doorkeeper/">Doorkeeper</a>.</p>
+
+<h2>Features</h2>
+
+<ul>
+<li>Works only with Redis.</li>
+<li>Automatically deploy by setting <code>ENV['REDIS_RATE_LIMIT_URL']</code>.</li>
+<li>When the Redis connection is not available redis throttle skips the rate limit check (it does not blow up).</li>
+<li>Automatically adds <code>X-RateLimit-Limit</code> and <code>X-RateLimit-Remaining</code> headers.</li>
+<li>Set MockRedis while running your tests</li>
+</ul><h2>Requirements</h2>
+
+<p>Devices API is tested against MRI 1.9.3.</p>
+
+<h2>Installation</h2>
+
+<p>Update your gem file and run <code>bundle</code></p>
+
+<div class="highlight"><pre><span class="n">gem</span> <span class="s1">'redis-throttle'</span><span class="p">,</span> <span class="n">git</span><span class="p">:</span> <span class="s1">'git@github.com:andreareginato/redis-throttle.git'</span>
+</pre></div>
+
+<h2>Rails Example</h2>
+
+<div class="highlight"><pre><span class="c1"># Limit the daily numebr of requests to 2500</span>
+<span class="n">config</span><span class="o">.</span><span class="n">middleware</span><span class="o">.</span><span class="n">use</span> <span class="no">Rack</span><span class="o">::</span><span class="no">RedisThrottle</span><span class="o">::</span><span class="no">Daily</span><span class="p">,</span> <span class="n">max</span><span class="p">:</span> <span class="mi">2500</span>
+</pre></div>
+
+<h2>Sinatra example</h2>
+
+<div class="highlight"><pre><span class="c1">#!/usr/bin/env ruby -rubygems</span>
+<span class="nb">require</span> <span class="s1">'sinatra'</span>
+<span class="nb">require</span> <span class="s1">'rack/throttle'</span>
+<span class="n">use</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Throttle</span><span class="o">::</span><span class="no">Daily</span><span class="p">,</span> <span class="n">max</span><span class="p">:</span> <span class="mi">2500</span>
+</pre></div>
+
+<h2>Rack app example</h2>
+
+<div class="highlight"><pre><span class="c1">#!/usr/bin/env rackup</span>
+<span class="nb">require</span> <span class="s1">'rack/throttle'</span>
+<span class="n">use</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Throttle</span><span class="o">::</span><span class="no">Daily</span> <span class="n">max</span><span class="p">:</span> <span class="mi">2500</span>
+
+<span class="n">run</span> <span class="nb">lambda</span> <span class="p">{</span> <span class="o">|</span><span class="n">env</span><span class="o">|</span> <span class="o">[</span><span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s1">'Content-Type'</span> <span class="o">=&gt;</span> <span class="s1">'text/plain'</span><span class="p">},</span> <span class="s2">"Hello, world!</span><span class="se">\n</span><span class="s2">"</span><span class="o">]</span> <span class="p">}</span>
+</pre></div>
+
+<h2>Customizations</h2>
+
+<p>You can fully customize the implementation details of any of these strategies
+by simply subclassing one of the default implementations. </p>
+
+<p>In our example we want to reach those goals.</p>
+
+<ul>
+<li>We want to use Doorkeper as authorization system (OAuth2)</li>
+<li>The number of daily requests are based on the user id and not the IP
+address (default in <code>Rack::RedisThrottle</code>)</li>
+<li>The number of daily requests is dynamically set per user by the
+<code>user#rate_limit</code> field.</li>
+</ul><p>Now subclass <code>Rack::RedisThrottle::Daily</code>, create your own rules and use it in your Rails app</p>
+
+<div class="highlight"><pre><span class="c1"># /lib/middlewares/daily_rate_limit</span>
+<span class="nb">require</span> <span class="s1">'rack/redis_throttle'</span>
+
+<span class="k">class</span> <span class="nc">DailyRateLimit</span> <span class="o">&lt;</span> <span class="no">Rack</span><span class="o">::</span><span class="no">RedisThrottle</span><span class="o">::</span><span class="no">Daily</span>
+
+  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+    <span class="vi">@user_rate_limit</span> <span class="o">=</span> <span class="n">user_rate_limit</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+    <span class="k">super</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">client_identifier</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="vi">@user_rate_limit</span><span class="o">.</span><span class="n">respond_to?</span><span class="p">(</span><span class="ss">:_id</span><span class="p">)</span> <span class="p">?</span> <span class="vi">@user_rate_limit</span><span class="o">.</span><span class="n">_id</span> <span class="p">:</span> <span class="s1">'user-unknown'</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">max_per_window</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="vi">@user_rate_limit</span><span class="o">.</span><span class="n">respond_to?</span><span class="p">(</span><span class="ss">:rate_limit</span><span class="p">)</span> <span class="p">?</span> <span class="vi">@user_rate_limit</span><span class="o">.</span><span class="n">rate_limit</span> <span class="p">:</span> <span class="mi">1000</span>
+  <span class="k">end</span>
+
+  <span class="c1"># Rate limit only requests sending the access token</span>
+  <span class="k">def</span> <span class="nf">need_protection?</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="n">request</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">has_key?</span><span class="p">(</span><span class="s1">'HTTP_AUTHORIZATION'</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="kp">private</span>
+
+  <span class="k">def</span> <span class="nf">user_rate_limit</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+    <span class="n">request</span>      <span class="o">=</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Request</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+    <span class="n">token</span>        <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">env</span><span class="o">[</span><span class="s1">'HTTP_AUTHORIZATION'</span><span class="o">].</span><span class="n">split</span><span class="p">(</span><span class="s1">' '</span><span class="p">)</span><span class="o">[-</span><span class="mi">1</span><span class="o">]</span>
+    <span class="n">access_token</span> <span class="o">=</span> <span class="no">Doorkeeper</span><span class="o">::</span><span class="no">AccessToken</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">token</span><span class="p">:</span> <span class="n">token</span><span class="p">)</span><span class="o">.</span><span class="n">first</span>
+    <span class="n">access_token</span> <span class="p">?</span> <span class="no">User</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">access_token</span><span class="o">.</span><span class="n">resource_owner_id</span><span class="p">)</span> <span class="p">:</span> <span class="kp">nil</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></div>
+
+<p>Now you can use it in your Rails App.</p>
+
+<div class="highlight"><pre><span class="c1"># config/application.rb</span>
+<span class="k">module</span> <span class="nn">App</span>
+  <span class="k">class</span> <span class="nc">Application</span> <span class="o">&lt;</span> <span class="no">Rails</span><span class="o">::</span><span class="no">Application</span>
+
+    <span class="c1"># Puts your rate limit middleware as high as you can in your middleware stack</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">middleware</span><span class="o">.</span><span class="n">insert_after</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Lock</span><span class="p">,</span> <span class="s1">'DailyRateLimit'</span>
+</pre></div>
+
+<h2>Rate limit headers</h2>
+
+<p><code>Rack::RedisThrottle</code> automatically sets two rate limits headers to let the 
+client know the max number of requests and the one availables.</p>
+
+<pre><code>HTTP/1.1 200 OK
+X-RateLimit-Limit: 5000
+X-RateLimit-Remaining: 4999
+</code></pre>
+
+<p>When you exceed the API calls limit your request is forbidden.</p>
+
+<pre><code>HTTP/1.1 403 Forbidden
+X-RateLimit-Limit: 5000
+X-RateLimit-Remaining: 0
+</code></pre>
+
+<h1>Testing your apps</h1>
+
+<p>While testing your Rack app Mock the redis connection by requiring this file</p>
+
+<div class="highlight"><pre>  <span class="c1"># Rate limit fake redis connection</span>
+  <span class="nb">require</span> <span class="s1">'rack/redis_throttle/testing/connection'</span>
+</pre></div>
+
+<h2>HTTP client identification</h2>
+
+<p>The rate-limiting counters stored and maintained by <code>Rack::RedisThrottle</code> are
+keyed to unique HTTP clients. By default, HTTP clients are uniquely identified
+by their IP address as returned by <code>Rack::Request#ip</code>. If you wish to instead
+use a more granular, application-specific identifier such as a session key or
+a user account name, you need only subclass a throttling strategy implementation
+and override the <code>#client_identifier</code> method.</p>
+
+<h2>HTTP Response Codes and Headers</h2>
+
+<p>When a client exceeds their rate limit, <code>Rack::RedisThrottle</code> by default returns
+a "403 Forbidden" response with an associated "Rate Limit Exceeded" message
+in the response body. If you need personalize it, for example with a
+JSON message.</p>
+
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">http_error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">,</span> <span class="n">headers</span> <span class="o">=</span> <span class="p">{})</span>
+  <span class="o">[</span> <span class="n">code</span><span class="p">,</span> <span class="p">{</span> <span class="s1">'Content-Type'</span> <span class="o">=&gt;</span> <span class="s1">'application/json'</span> <span class="p">}</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">headers</span><span class="p">),</span> <span class="o">[</span><span class="n">body</span><span class="p">(</span><span class="n">request</span><span class="p">)</span><span class="o">.</span><span class="n">to_json</span><span class="o">]</span> <span class="o">]</span>
+<span class="k">end</span>
+
+<span class="k">def</span> <span class="nf">body</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+  <span class="p">{</span>
+    <span class="n">status</span><span class="p">:</span> <span class="mi">403</span><span class="p">,</span>
+    <span class="nb">method</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">env</span><span class="o">[</span><span class="s1">'REQUEST_METHOD'</span><span class="o">]</span><span class="p">,</span>
+    <span class="n">request</span><span class="p">:</span> <span class="s2">"</span><span class="si">#{</span><span class="n">request</span><span class="o">.</span><span class="n">env</span><span class="o">[</span><span class="s1">'rack.url_scheme'</span><span class="o">]</span><span class="si">}</span><span class="s2">://</span><span class="si">#{</span><span class="n">request</span><span class="o">.</span><span class="n">env</span><span class="o">[</span><span class="s1">'HTTP_HOST'</span><span class="o">]</span><span class="si">}#{</span><span class="n">request</span><span class="o">.</span><span class="n">env</span><span class="o">[</span><span class="s1">'PATH_INFO'</span><span class="o">]</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+    <span class="n">description</span><span class="p">:</span> <span class="s1">'Rate limit exceeded'</span><span class="p">,</span>
+    <span class="n">daily_rate_limit</span><span class="p">:</span> <span class="n">max_per_window</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="k">end</span>
+</pre></div>
+
+<h2>Notes</h2>
+
+<h3>Testing coverage</h3>
+
+<p>Only <code>Rack::RedisThrottle::Daily</code> has a test suite. We will cover all
+the gem whenever I'll find more time and I'll see it being used widely.</p>
+
+<h2>Contributing</h2>
+
+<p>Fork the repo on github and send a pull requests with topic branches. Do not forget to
+provide specs to your contribution.</p>
+
+<h3>Running specs</h3>
+
+<ul>
+<li>Fork and clone the repository.</li>
+<li>Run <code>gem install bundler</code> to get the latest for the gemset.</li>
+<li>Run <code>bundle install</code> for dependencies.</li>
+<li>Run <code>bundle exec guard</code> and press enter to execute all specs.</li>
+</ul><h2>Spec guidelines</h2>
+
+<p>Follow <a href="http://betterspecs.org">betterspecs.org</a> guidelines.</p>
+
+<h2>Coding guidelines</h2>
+
+<p>Follow <a href="https://github.com/styleguide/">github</a> guidelines.</p>
+
+<h2>Feedback</h2>
+
+<p>Use the <a href="https://github.com/andreareginato/redis-throttle/issues">issue tracker</a> for bugs.
+<a href="mailto:andrea.reginato@gmail.com">Mail</a> or <a href="http://twitter.com/andreareginato">Tweet</a>
+us for any idea that can improve the project.</p>
+
+<h2>Links</h2>
+
+<ul>
+<li><a href="https://github.com/andreareginato/redis-throttle">GIT Repository</a></li>
+<li>Initial inspiration form <a href="http://martinciu.com/2011/08/how-to-add-api-throttle-to-your-rails-app.html">Martinciu's dev blog</a>
+</li>
+</ul><h2>Authors</h2>
+
+<p><a href="http://twitter.com/andreareginato">Andrea Reginato</a>
+Thanks to <a href="http://lelylan.com">Lelylan</a> for letting me share the code.</p>
+
+<h2>Contributors</h2>
+
+<p>Special thanks to the following people for submitting patches.</p>
+
+<h2>Changelog</h2>
+
+<p>See <a href="redis-throttle/blob/master/CHANGELOG.md">CHANGELOG</a></p>
+
+<h2>Copyright</h2>
+
+<p>Redis Throttle is free and unencumbered public domain software.
+See <a href="redis-throttle/blob/master/LICENSE.md">LICENCE</a></p>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/andreareginato">andreareginato</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
