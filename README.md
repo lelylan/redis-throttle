@@ -25,14 +25,20 @@ Devices API is tested against MRI 1.9.3.
 Update your gem file and run `bundle`
 
 ```ruby
-gem 'redis-throttle', git: 'git@github.com:andreareginato/redis-throttle.git'
+gem 'redis-throttle', git: 'git://github.com/andreareginato/redis-throttle.git'
 ```
 
 ## Rails Example
 
 ```ruby
-# Limit the daily numebr of requests to 2500
-config.middleware.use Rack::RedisThrottle::Daily, max: 2500
+# At the top of config/application.rb
+require 'rack/redis_throttle'
+
+# Inside the class of config/application.rb
+class Application < Rails::Application
+  # Limit the daily number of requests to 2500
+  config.middleware.use Rack::RedisThrottle::Daily, max: 2500
+end
 ```
 
 ## Sinatra example 
