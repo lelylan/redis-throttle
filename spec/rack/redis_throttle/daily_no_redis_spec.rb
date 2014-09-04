@@ -20,11 +20,11 @@ describe Rack::RedisThrottle::Daily do
           before { get '/foo' }
 
           it 'returns a 200 status' do
-            last_response.status.should == 200
+            expect(last_response.status).to eq(200)
           end
 
           it 'returns the remaining requests header' do
-            last_response.headers['X-RateLimit-Remaining'].should == '5000'
+            expect(last_response.headers['X-RateLimit-Remaining']).to eq('5000')
           end
         end
       end

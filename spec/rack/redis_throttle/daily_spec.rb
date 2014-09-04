@@ -28,21 +28,21 @@ describe Rack::RedisThrottle::Daily do
         before { get '/foo' }
 
         it 'returns a 200 status' do
-          last_response.status.should == 200
+          expect(last_response.status).to eq(200)
         end
 
         it 'returns the requests limit headers' do
-          last_response.headers['X-RateLimit-Limit'].should_not be_nil
+          expect(last_response.headers['X-RateLimit-Limit']).not_to be_nil
         end
 
         it 'returns the remaining requests header' do
-          last_response.headers['X-RateLimit-Remaining'].should_not be_nil
+          expect(last_response.headers['X-RateLimit-Remaining']).not_to be_nil
         end
 
         it 'decreases the available requests' do
           previous = last_response.headers['X-RateLimit-Remaining'].to_i
           get '/', {}, 'AUTHORIZATION' => 'Bearer <token>'
-          previous.should == last_response.headers['X-RateLimit-Remaining'].to_i + 1
+          expect(previous).to eq(last_response.headers['X-RateLimit-Remaining'].to_i + 1)
         end
       end
 
@@ -52,11 +52,11 @@ describe Rack::RedisThrottle::Daily do
         before { get '/foo' }
 
         it 'returns a 403 status' do
-          last_response.status.should == 403
+          expect(last_response.status).to eq(403)
         end
 
         it 'returns a rate limited exceeded body' do
-          last_response.body.should == '403 Forbidden (Rate Limit Exceeded)'
+          expect(last_response.body).to eq('403 Forbidden (Rate Limit Exceeded)')
         end
 
         describe 'when comes the new day' do
@@ -70,7 +70,7 @@ describe Rack::RedisThrottle::Daily do
           after  { Timecop.return }
 
           it 'returns a 200 status' do
-            last_response.status.should == 200
+            expect(last_response.status).to eq(200)
           end
 
           it 'returns a new rate limit' do
