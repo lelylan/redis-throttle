@@ -1,9 +1,10 @@
 # Redis Throttle Middleware
+[![Build Status](https://travis-ci.org/andreareginato/redis-throttle.svg)](https://travis-ci.org/andreareginato/redis-throttle)
 
 This is a fork of the [Rack Throttle](http://github.com/datagraph/rack-throttle) middleware
 that provides logic for rate-limiting incoming HTTP requests to Rack applications using
 Redis as storage system. You can use `Rack::RedisThrottle` with any Ruby web framework based
-on Rack, including Ruby on Rails 3.0 and Sinatra. This gem was designed to experiment rate 
+on Rack, including Ruby on Rails 3.0 and Sinatra. This gem was designed to experiment rate
 limit with Rails 3.x and [Doorkeeper](https://github.com/applicake/doorkeeper/).
 
 ## Features
@@ -17,7 +18,7 @@ limit with Rails 3.x and [Doorkeeper](https://github.com/applicake/doorkeeper/).
 
 ## Requirements
 
-Devices API is tested against MRI 1.9.3.
+Redis Throttle is tested against MRI 1.9.3, 2.0, and 2.1.x.
 
 
 ## Installation
@@ -41,17 +42,17 @@ class Application < Rails::Application
 end
 ```
 
-## Sinatra example 
-   
+## Sinatra example
+
 ```ruby
 #!/usr/bin/env ruby -rubygems
 require 'sinatra'
 require 'rack/throttle'
 use Rack::Throttle::Daily, max: 2500
 ```
-    
-## Rack app example 
- 
+
+## Rack app example
+
 ```ruby
 #!/usr/bin/env rackup
 require 'rack/throttle'
@@ -63,9 +64,9 @@ run lambda { |env| [200, {'Content-Type' => 'text/plain'}, "Hello, world!\n"] }
 ## Customizations
 
 You can fully customize the implementation details of any of these strategies
-by simply subclassing one of the default implementations. 
+by simply subclassing one of the default implementations.
 
-In our example we want to reach those goals.
+In our example we want to reach these goals:
 
 * We want to use Doorkeper as authorization system (OAuth2)
 * The number of daily requests are based on the user id and not the IP
@@ -116,14 +117,14 @@ Now you can use it in your Rails App.
 # config/application.rb
 module App
   class Application < Rails::Application
-  
+
     # Puts your rate limit middleware as high as you can in your middleware stack
     config.middleware.insert_after Rack::Lock, 'DailyRateLimit'
 ```
 
 ## Rate limit headers
 
-`Rack::RedisThrottle` automatically sets two rate limits headers to let the 
+`Rack::RedisThrottle` automatically sets two rate limits headers to let the
 client know the max number of requests and the one availables.
 
     HTTP/1.1 200 OK
@@ -224,7 +225,7 @@ us for any idea that can improve the project.
 ## Links
 
 * [GIT Repository](https://github.com/andreareginato/redis-throttle)
-* Initial inspiration form [Martinciu's dev blog](http://martinciu.com/2011/08/how-to-add-api-throttle-to-your-rails-app.html)
+* Initial inspiration from [Martinciu's dev blog](http://martinciu.com/2011/08/how-to-add-api-throttle-to-your-rails-app.html)
 
 
 ## Authors
