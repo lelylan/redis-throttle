@@ -1,0 +1,12 @@
+language: ruby
+services:
+  - redis-server
+rvm:
+  - 1.9.3
+  - jruby-19mode
+  - rbx
+  - 2.0.0
+  - 2.1.0
+matrix:
+  allow_failures:
+    - rvm: rbx
