@@ -7,6 +7,14 @@ Redis as storage system. You can use `Rack::RedisThrottle` with any Ruby web fra
 on Rack, including Ruby on Rails 3.0 and Sinatra. This gem was designed to experiment rate
 limit with Rails 3.x and [Doorkeeper](https://github.com/applicake/doorkeeper/).
 
+#### Thanks to Open Source
+
+Redis Throttle Middleware come to life thanks to the work I've made in Lelylan, an open source microservices architecture for the Internet of Things. If this project helped you in any way, think about giving us a <a href="https://github.com/lelylan/lelylan">star on Github</a>.
+
+<a href="https://github.com/lelylan/lelylan">
+<img src="https://raw.githubusercontent.com/lelylan/lelylan/master/public/logo-lelylan.png" data-canonical-src="https://raw.githubusercontent.com/lelylan/lelylan/master/public/logo-lelylan.png" width="300"/></a>
+
+
 ## Features
 
 * Works only with Redis.
