@@ -1,5 +1,5 @@
 # Redis Throttle Middleware
-[![Build Status](https://travis-ci.org/andreareginato/redis-throttle.svg)](https://travis-ci.org/andreareginato/redis-throttle)
+[![Build Status](https://travis-ci.org/lelylan/redis-throttle.svg)](https://travis-ci.org/lelylan/redis-throttle)
 
 This is a fork of the [Rack Throttle](http://github.com/datagraph/rack-throttle) middleware
 that provides logic for rate-limiting incoming HTTP requests to Rack applications using
@@ -26,7 +26,7 @@ Redis Throttle is tested against MRI 1.9.3, 2.0, and 2.1.x.
 Update your gem file and run `bundle`
 
 ```ruby
-gem 'redis-throttle', git: 'git://github.com/andreareginato/redis-throttle.git'
+gem 'redis-throttle', git: 'git://github.com/lelylan/redis-throttle.git'
 ```
 
 ## Rails Example
