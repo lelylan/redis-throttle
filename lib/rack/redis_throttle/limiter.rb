@@ -86,6 +86,9 @@ module Rack
         [code, {'Content-Type' => 'text/plain; charset=utf-8'}.merge(headers),
           [ http_status(code) + (message.nil? ? "\n" : " (#{message})")]]
       end
+      
+      def http_status(code)
+        [code, Rack::Utils::HTTP_STATUS_CODES[code]].join(' ')
     end
   end
 end
