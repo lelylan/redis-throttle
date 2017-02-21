@@ -133,7 +133,7 @@ module App
 ## Rate limit headers
 
 `Rack::RedisThrottle` automatically sets two rate limits headers to let the
-client know the max number of requests and the one availables.
+client know the max number of requests and the number of requests available.
 
     HTTP/1.1 200 OK
     X-RateLimit-Limit: 5000
