@@ -7,7 +7,8 @@ module Rack
       def self.create(options={})
         url = redis_provider || 'redis://localhost:6379/0'
         options.reverse_merge!({ url: url })
-        client = Redis.connect(url: options[:url], driver: :hiredis)
+        uri    = URI.parse(options[:url])
+        client = Redis.new(:host => uri.host, :port => uri.port, :password => uri.password, driver: :hiredis)
         Redis::Namespace.new("redis-throttle:#{ENV['RACK_ENV']}:rate", redis: client)
       end
 
