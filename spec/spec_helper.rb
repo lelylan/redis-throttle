@@ -5,6 +5,7 @@ require 'rack/test'
 require 'mock_redis'
 require 'rspec'
 require 'timecop'
+require 'active_support/core_ext/time/calculations'
 
 require File.dirname(__FILE__) + '/fixtures/fake_app'
 

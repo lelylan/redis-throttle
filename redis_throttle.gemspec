@@ -30,7 +30,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'redis'
   gem.add_dependency 'hiredis'
   gem.add_dependency 'redis-namespace'
-  gem.add_dependency 'activesupport'
 
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec'
@@ -45,4 +44,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'guard-rspec'
   gem.add_development_dependency 'fuubar'
   gem.add_development_dependency 'growl'
+  gem.add_development_dependency 'activesupport'
 end

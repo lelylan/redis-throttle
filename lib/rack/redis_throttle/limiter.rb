@@ -5,7 +5,7 @@ module Rack
     class Limiter < Rack::Throttle::Limiter
 
       def initialize(app, options = {})
-        options.reverse_merge!({ cache: Rack::RedisThrottle::Connection.create })
+        options[:cache] = Rack::RedisThrottle::Connection.create(options) unless options.has_key?(:cache)
         @app, @options = app, options
       end
 
@@ -53,7 +53,7 @@ module Rack
         begin
           key   = cache_key(request)
           count = cache.incr(key)
-          cache.expire(key, 1.day) if count == 1
+          cache.expire(key, 86400) if count == 1
           count
         rescue Redis::BaseConnectionError => e
           puts "ERROR: Redis connection not available. Rescuing cache.incr(key)" if ENV['DEBUG']

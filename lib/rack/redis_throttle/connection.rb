@@ -5,9 +5,9 @@ module Rack
     class Connection
 
       def self.create(options={})
-        url = redis_provider || 'redis://localhost:6379/0'
-        options.reverse_merge!({ url: url })
-        client = Redis.connect(url: options[:url], driver: :hiredis)
+        options[:url] = redis_provider || 'redis://localhost:6379/0' unless options.has_key?(:url)
+        method = Redis::VERSION.to_i >= 3 ? :new : :connect
+        client = Redis.send(method, url: options[:url], driver: :hiredis)
         Redis::Namespace.new("redis-throttle:#{ENV['RACK_ENV']}:rate", redis: client)
       end
 
